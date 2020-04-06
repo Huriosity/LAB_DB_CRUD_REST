@@ -1,8 +1,15 @@
 import org.json.simple.JSONArray;
 
+import java.util.ArrayList;
+
 public class RestServer {
 
     public static JSONArray getAllInfoFromDB(){
+        return configurateJsonArray(Database.getAllInfoFromDatabase());
+    }
+
+    public static JSONArray createNewRecordInTheDB( ArrayList<ArrayList<String>> keyValuePair){
+        Database.createNewRecordInTheDatabase(keyValuePair);
         return configurateJsonArray(Database.getAllInfoFromDatabase());
     }
 
