@@ -18,6 +18,12 @@ public class RestServer {
         return configurateJsonArray(Database.getAllInfoFromDatabase());
     }
 
+    public static JSONArray deleteRecordInTheDB(ArrayList<ArrayList<String>> keyValuePair){
+        Database.deleteRecordInTheDatabase(keyValuePair);
+        return configurateJsonArray(Database.getAllInfoFromDatabase());
+
+    }
+
     private static JSONArray configurateJsonArray(DatabaseResponse databaseResponse){
         JSONArray result = new JSONArray();
 

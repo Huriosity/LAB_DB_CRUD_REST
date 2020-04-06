@@ -56,8 +56,6 @@ public class xmlParser {
         Element tr_head = doc.createElement("tr");
         String tabSymbols = "\t\t\t\t\t";
 
-        System.out.println("size = " + jsonArrayData.size());
-
         String firstJSONObj = jsonArrayData.get(0).toString();
 
         firstJSONObj = firstJSONObj.replaceAll("\"", "");

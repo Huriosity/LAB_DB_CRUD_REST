@@ -152,6 +152,33 @@ public class HtmlServerHandler extends Thread {
                     break;
                 }
                 case "DELETE":{
+                    ArrayList<ArrayList<String>> keyValuePair = parseRequestPayload();
+                    for(int i = 0; i < keyValuePair.get(0).size(); i++){
+                        System.out.println("fist = " + keyValuePair.get(0).get(i));
+                        System.out.println("second = " + keyValuePair.get(1).get(i));
+                    }
+
+                    var formTemplate = Path.of(this.directory, "formTemplate.html");
+                    var form = Path.of(this.directory, "index.html");
+                    if (!Files.exists(form)){
+                        File _form = new File(form.toString());
+                    }
+                    Files.copy(formTemplate, form, StandardCopyOption.REPLACE_EXISTING);
+
+                    xmlParser.writeXML(RestServer.deleteRecordInTheDB(keyValuePair), form.toString());
+
+                    if (Files.exists(form) && !Files.isDirectory(form)) {
+                        var extension = this.getFileExtension(form);
+                        var type = CONTENT_TYPES.get(extension);
+                        var fileBytes = Files.readAllBytes(form);
+                        this.sendHeader(output, 200, HTTP_MESSAGE.OK_200, type, fileBytes.length);
+
+                        LogSystem.acces_log(Host, DTF.format(LocalDateTime.now()).toString(),method + " " +
+                                requestURL + "HTTP/1.1", 200,fileBytes.length, requestURL, UserAgent);
+
+                        output.write(fileBytes);
+                    }
+
                     break;
                 }
             }

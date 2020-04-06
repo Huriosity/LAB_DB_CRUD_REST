@@ -224,6 +224,60 @@ public class Database {
 
     }
 
+    public static void deleteRecordInTheDatabase(ArrayList<ArrayList<String>> keyValuePair){
+        int foreighRullerId = -1;
+        int foreightTownId = -1;
+        int startYearOfReign = -1;
+        int endYearOfReign = -1;
+
+        for (int i = 0; i < keyValuePair.get(0).size(); i++ ) {
+
+            String currentKey = keyValuePair.get(0).get(i);
+            String currentValue = keyValuePair.get(1).get(i);
+
+            if (currentKey.equals("foreight_ruller_ID")) {
+                foreighRullerId = getIntFromKeyValuePair(currentValue);
+
+            } else if (currentKey.equals("foreight_town_ID")) {
+                foreightTownId = getIntFromKeyValuePair(currentValue);
+
+            } else if (currentKey.equals("start_year")) {
+                startYearOfReign = getIntFromKeyValuePair(currentValue);
+
+            } else if (currentKey.equals("end_year")) {
+                endYearOfReign = getIntFromKeyValuePair(currentValue);
+
+            }
+        }
+
+        int existingRullerRelations = getRullerCountOfExistingRullerTownRelationships(foreighRullerId);
+        int existingTownRelations = getTownCountOfExistingRullerTownRelationships(foreightTownId);
+        String sqlRequestDeleteFromRullerTownRelation = "DELETE FROM ruller_town_relation WHERE foreight_ruller_ID = " +
+                foreighRullerId + " AND foreight_town_ID = " + foreightTownId + " AND start_year = "
+                + startYearOfReign + " AND end_year = " + endYearOfReign + ";";
+
+        if (existingRullerRelations == 1){
+            String sqlRequestDeleteFromRuller = "DELETE FROM ruller WHERE ruller_ID = " + foreighRullerId;
+            String sqlRequestDeleteFromRullerYearsOfLife = "DELETE FROM ruller_years_of_life WHERE " +
+                    "foreight_ruller_ID = " +  foreighRullerId;
+            if (existingTownRelations == 1 ) {
+                String sqlRequestDeleteFromTown = "DELETE FROM TOWN WHERE town_ID = " + foreightTownId;
+                executeSeveralTheGivenСommandsForTheDatabase(sqlRequestDeleteFromRullerTownRelation,
+                        sqlRequestDeleteFromRullerYearsOfLife, sqlRequestDeleteFromRuller, sqlRequestDeleteFromTown);
+            } else {
+                executeSeveralTheGivenСommandsForTheDatabase(sqlRequestDeleteFromRullerTownRelation,
+                        sqlRequestDeleteFromRullerYearsOfLife,sqlRequestDeleteFromRuller);
+            }
+
+        } else if ( existingTownRelations == 1 ) {
+            String sqlRequestDeleteFromTown = "DELETE FROM TOWN WHERE town_ID = " + foreightTownId;
+            executeSeveralTheGivenСommandsForTheDatabase(sqlRequestDeleteFromRullerTownRelation,
+                    sqlRequestDeleteFromTown);
+        } else {
+            executeTheGivenСommandForTheDatabase(sqlRequestDeleteFromRullerTownRelation);
+        }
+    }
+
     private static String getYearsOfLifiFromKeyValuePair(String str) {
         if(str.isEmpty()){
             return "UNKNOWN";
@@ -251,6 +305,16 @@ public class Database {
         String sqlRequest = null;
         sqlRequest = "select (town_ID) from town WHERE town_name = '" + town_name + "';";
         System.out.println("SQL REQUEST = " + sqlRequest);
+        return getSomeIntValueFromTheFirstCellFromSqlRequest(sqlRequest);
+    }
+
+    private static int getRullerCountOfExistingRullerTownRelationships(int ruller_ID){
+        String sqlRequest = "SELECT COUNT(*) FROM ruller_town_relation WHERE foreight_ruller_ID = " + ruller_ID +  ";";
+        return getSomeIntValueFromTheFirstCellFromSqlRequest(sqlRequest);
+    }
+
+    private static int getTownCountOfExistingRullerTownRelationships(int town_ID){
+        String sqlRequest = "SELECT COUNT(*) FROM ruller_town_relation WHERE foreight_town_ID = " + town_ID +  ";";
         return getSomeIntValueFromTheFirstCellFromSqlRequest(sqlRequest);
     }
 
