@@ -66,7 +66,7 @@ public class xmlParser {
 
         String arr_col_names[] = firstJSONObj.split(",");
 
-        for(int it = 0;it < arr_col_names.length;it++){
+        for(int it = 0;it < jsonArrayData.size();it++){
             Element th = doc.createElement("th");
 
             th.appendChild(doc.createTextNode(arr_col_names[it]));
