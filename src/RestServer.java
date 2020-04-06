@@ -13,6 +13,11 @@ public class RestServer {
         return configurateJsonArray(Database.getAllInfoFromDatabase());
     }
 
+    public static JSONArray updateRecordInTheDB(ArrayList<ArrayList<String>> keyValuePair){
+        Database.updateRecordInTheDatabase(keyValuePair);
+        return configurateJsonArray(Database.getAllInfoFromDatabase());
+    }
+
     private static JSONArray configurateJsonArray(DatabaseResponse databaseResponse){
         JSONArray result = new JSONArray();
 

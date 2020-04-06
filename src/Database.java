@@ -138,6 +138,92 @@ public class Database {
         }
     }
 
+    public static void updateRecordInTheDatabase(ArrayList<ArrayList<String>> keyValuePair){
+
+        String rullerFirstname = null;
+        String rullerPatronomic = null;
+        String rullerTitle = null;
+        String yearOfBirth = null;
+        String yearOfDeath = null;
+        String townName = null;
+        int startYearOfReign = -1;
+        int endYearOfReign = -1;
+        int rullerId = -1;
+        int oldTownId = -1;
+
+        for (int i = 0; i < keyValuePair.get(0).size(); i++ ){
+
+            String currentKey = keyValuePair.get(0).get(i);
+            String currentValue = keyValuePair.get(1).get(i);
+
+            if (currentKey.equals("ruller_firstname")){
+                rullerFirstname = currentValue;
+
+            } else if(currentKey.equals("ruller_patronomic")){
+                rullerPatronomic = currentValue;
+
+            } else if(currentKey.equals("ruller_title")){
+                rullerTitle = currentValue;
+
+            } else if(currentKey.equals("year_of_birth")){
+                yearOfBirth = getYearsOfLifiFromKeyValuePair(currentValue);
+
+            } else if(currentKey.equals("year_of_death")){
+                yearOfDeath = getYearsOfLifiFromKeyValuePair(currentValue);
+
+            } else if(currentKey.equals("town_name")){
+                townName = currentValue;
+
+            } else if(currentKey.equals("start_year")){
+                startYearOfReign = getIntFromKeyValuePair(currentValue);
+
+            } else if(currentKey.equals("end_year")){
+                endYearOfReign = getIntFromKeyValuePair(currentValue);
+
+            } else if (currentKey.equals("ruller_ID")){
+                rullerId = getIntFromKeyValuePair(currentValue);
+
+            } else if (currentKey.equals("foreight_town_ID")){
+                oldTownId = getIntFromKeyValuePair(currentValue);
+
+            }
+        }
+
+        int foreightTownId = getTownIdByTownName(townName);
+
+        if (foreightTownId == -1){
+            String sqlRequest = "INSERT town(town_name) VALUES ('" + townName + "');";
+
+            executeTheGivenСommandForTheDatabase(sqlRequest);
+
+            foreightTownId = getTownIdByTownName(townName);
+            sqlRequest = "UPDATE ruller_town_relation SET start_year = "
+                    + startYearOfReign + ", end_year = " + endYearOfReign + ", foreight_town_ID = " + foreightTownId +
+                    " WHERE foreight_ruller_ID = " + rullerId +
+                    " AND foreight_town_ID = " + oldTownId + ";";
+
+            executeTheGivenСommandForTheDatabase(sqlRequest);
+        } else {
+
+            String sqlRequestIntoRullerTownRelation = "UPDATE ruller_town_relation SET start_year = "
+                    + startYearOfReign + ", end_year = " + endYearOfReign + ", foreight_town_ID = " + foreightTownId +
+                    " WHERE foreight_ruller_ID = " + rullerId +
+                    " AND foreight_town_ID = " + oldTownId + ";";
+
+            executeTheGivenСommandForTheDatabase(sqlRequestIntoRullerTownRelation);
+        }
+
+        String sqlRequestIntoRullerYearsOfLife = "UPDATE ruller_years_of_life SET year_of_birth = '" + yearOfBirth +
+                "',year_of_death = '" + yearOfDeath + "' WHERE foreight_ruller_ID = " + rullerId + ";";
+
+        String sqlRequestIntoRuller = "UPDATE ruller SET ruller_firstname = '" + rullerFirstname +
+                "', ruller_patronomic = '" + rullerPatronomic + "', ruller_title = '" + rullerTitle +
+                "' WHERE ruller_ID = " + rullerId + ";" ;
+
+        executeSeveralTheGivenСommandsForTheDatabase(sqlRequestIntoRullerYearsOfLife,sqlRequestIntoRuller);
+
+    }
+
     private static String getYearsOfLifiFromKeyValuePair(String str) {
         if(str.isEmpty()){
             return "UNKNOWN";
