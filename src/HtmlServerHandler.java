@@ -68,37 +68,33 @@ public class HtmlServerHandler extends Thread {
                             output.write(fileBytes);
                         }
                     } else {
-                        var filePath = Path.of(this.directory, requestURL);
-                        if (Files.exists(filePath) && !Files.isDirectory(filePath)) {
-                            var extension = this.getFileExtension(filePath);
-                            var type = CONTENT_TYPES.get(extension);
-                            var fileBytes = Files.readAllBytes(filePath);
-                            this.sendHeader(output, 200, "OK", type, fileBytes.length);
+                            var filePath = Path.of(this.directory, requestURL);
+                            if (Files.exists(filePath) && !Files.isDirectory(filePath)) {
+                                var extension = this.getFileExtension(filePath);
+                                var type = CONTENT_TYPES.get(extension);
+                                var fileBytes = Files.readAllBytes(filePath);
+                                this.sendHeader(output, 200, "OK", type, fileBytes.length);
 
-                            LogSystem.acces_log(Host, DTF.format(LocalDateTime.now()).toString(),method + " " +
-                                    requestURL + "HTTP/1.1", 200,fileBytes.length,requestURL,UserAgent);
+                                LogSystem.acces_log(Host, DTF.format(LocalDateTime.now()).toString(),method + " " +
+                                        requestURL + "HTTP/1.1", 200,fileBytes.length,requestURL,UserAgent);
 
-                            output.write(fileBytes);
-                        } else {
-                            var type = CONTENT_TYPES.get("text");
-                            this.sendHeader(output, 404, "Not Found", type, HTTP_MESSAGE.NOT_FOUND_404.length());
+                                output.write(fileBytes);
+                            } else {
+                                var type = CONTENT_TYPES.get("text");
+                                this.sendHeader(output, 404, "Not Found", type, HTTP_MESSAGE.NOT_FOUND_404.length());
 
-                            LogSystem.acces_log(Host, DTF.format(LocalDateTime.now()).toString(),method + " " +
-                                            requestURL + "HTTP/1.1", 404,HTTP_MESSAGE.NOT_FOUND_404.length(),
-                                    requestURL, UserAgent);
+                                LogSystem.acces_log(Host, DTF.format(LocalDateTime.now()).toString(),method + " " +
+                                                requestURL + "HTTP/1.1", 404,HTTP_MESSAGE.NOT_FOUND_404.length(),
+                                        requestURL, UserAgent);
 
-                            output.write(HTTP_MESSAGE.NOT_FOUND_404.getBytes());
-                        }
+                                output.write(HTTP_MESSAGE.NOT_FOUND_404.getBytes());
+                            }
 
                     }
                     break;
                 }
                 case "POST":{
                     ArrayList<ArrayList<String>> keyValuePair = parseRequestPayload();
-                    for(int i = 0; i < keyValuePair.get(0).size(); i++){
-                        System.out.println("fist = " + keyValuePair.get(0).get(i));
-                        System.out.println("second = " + keyValuePair.get(1).get(i));
-                    }
 
                     var formTemplate = Path.of(this.directory, "formTemplate.html");
                     var form = Path.of(this.directory, "index.html");
@@ -124,10 +120,6 @@ public class HtmlServerHandler extends Thread {
                 }
                 case "PUT":{
                     ArrayList<ArrayList<String>> keyValuePair = parseRequestPayload();
-                    for(int i = 0; i < keyValuePair.get(0).size(); i++){
-                        System.out.println("fist = " + keyValuePair.get(0).get(i));
-                        System.out.println("second = " + keyValuePair.get(1).get(i));
-                    }
 
                     var formTemplate = Path.of(this.directory, "formTemplate.html");
                     var form = Path.of(this.directory, "index.html");
@@ -153,10 +145,6 @@ public class HtmlServerHandler extends Thread {
                 }
                 case "DELETE":{
                     ArrayList<ArrayList<String>> keyValuePair = parseRequestPayload();
-                    for(int i = 0; i < keyValuePair.get(0).size(); i++){
-                        System.out.println("fist = " + keyValuePair.get(0).get(i));
-                        System.out.println("second = " + keyValuePair.get(1).get(i));
-                    }
 
                     var formTemplate = Path.of(this.directory, "formTemplate.html");
                     var form = Path.of(this.directory, "index.html");
@@ -201,7 +189,6 @@ public class HtmlServerHandler extends Thread {
         System.out.println("firstLine = " + firstLine);
         String headerLine = null;
         while((headerLine = br.readLine()).length() != 0){
-            System.out.println(headerLine);
             if(headerLine.contains("User-Agent")){
                 UserAgent = headerLine.split(" ",2)[1];
             }
@@ -213,7 +200,7 @@ public class HtmlServerHandler extends Thread {
         }
         // System.out.println("Payload data is: "+payload.toString());
         requestPayload = payload.toString();
-        System.out.println("check method = " + method);
+        System.out.println("method = " + method);
         if (method.equals("POST")) {
             checkPayloadForMethodValue();
         }
@@ -241,7 +228,6 @@ public class HtmlServerHandler extends Thread {
     private void eraseMethodPart(String result) {
         requestPayload = requestPayload.replace("_isMethod="+result,"");
         if (requestPayload.charAt(requestPayload.length()-1) == '&'){
-            System.out.println("should erase");
             requestPayload = removeLastChar(requestPayload);
         }
     }
