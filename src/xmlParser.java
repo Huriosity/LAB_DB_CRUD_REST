@@ -18,6 +18,7 @@ public class xmlParser {
     //DOM
     public static void writeXML(JSONArray jsonArrayData, String filePath) {
         try {
+            System.out.println("ПОЛУЧИЛИ ТАКОЙ JSARRAY = " + jsonArrayData.toString());
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setValidating(false);
             DocumentBuilder builder = factory.newDocumentBuilder();
@@ -56,15 +57,18 @@ public class xmlParser {
         Element tr_head = doc.createElement("tr");
         String tabSymbols = "\t\t\t\t\t";
 
+
+
         String firstJSONObj = jsonArrayData.get(0).toString();
 
         firstJSONObj = firstJSONObj.replaceAll("\"", "");
-        firstJSONObj = firstJSONObj.substring(1,firstJSONObj.length());
-        firstJSONObj = firstJSONObj.substring(0,firstJSONObj.length()-1);
+
 
         String arr_col_names[] = firstJSONObj.split(",");
 
-        for(int it = 0;it < jsonArrayData.size();it++){
+
+
+        for(int it = 0;it < arr_col_names.length;it++){
             Element th = doc.createElement("th");
 
             th.appendChild(doc.createTextNode(arr_col_names[it]));
@@ -80,6 +84,8 @@ public class xmlParser {
             lang.getParentNode().appendChild(updateForm);
 
         }
+
+
         lang.appendChild(tr_head);
 
         for (int row = 1; row < jsonArrayData.size(); row++){
@@ -87,8 +93,9 @@ public class xmlParser {
             firstJSONObj = jsonArrayData.get(row).toString();
 
             firstJSONObj = firstJSONObj.replaceAll("\"", "");
-            firstJSONObj = firstJSONObj.substring(1,firstJSONObj.length());
-            firstJSONObj = firstJSONObj.substring(0,firstJSONObj.length()-1);
+
+            System.out.println("ТУТ" + row);
+            System.out.println(firstJSONObj);
 
             String[] dataFromTable = firstJSONObj.split(",");
 
