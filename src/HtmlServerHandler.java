@@ -1,4 +1,10 @@
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import java.io.*;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -54,7 +60,11 @@ public class HtmlServerHandler extends Thread {
                             File _form = new File(form.toString());
                         }
                         Files.copy(formTemplate, form, StandardCopyOption.REPLACE_EXISTING);
-                        xmlParser.writeXML( RestServer.getAllInfoFromDB(), form.toString());
+
+                        JSONArray takeGET = sendRequestOnRestServer("GET",output);
+
+                        //xmlParser.writeXML( RestServerHandler.getAllInfoFromDB(), form.toString());
+                        xmlParser.writeXML( takeGET, form.toString());
 
                         if (Files.exists(form) && !Files.isDirectory(form)) {
                             var extension = this.getFileExtension(form);
@@ -103,7 +113,10 @@ public class HtmlServerHandler extends Thread {
                     }
                     Files.copy(formTemplate, form, StandardCopyOption.REPLACE_EXISTING);
 
-                    xmlParser.writeXML(RestServer.createNewRecordInTheDB(keyValuePair), form.toString());
+                    JSONArray takePOST = sendRequestOnRestServer("POST",output);
+
+                    // xmlParser.writeXML(RestServerHandler.createNewRecordInTheDB(keyValuePair), form.toString());
+                    xmlParser.writeXML(takePOST, form.toString());
 
                     if (Files.exists(form) && !Files.isDirectory(form)) {
                         var extension = this.getFileExtension(form);
@@ -128,7 +141,10 @@ public class HtmlServerHandler extends Thread {
                     }
                     Files.copy(formTemplate, form, StandardCopyOption.REPLACE_EXISTING);
 
-                    xmlParser.writeXML(RestServer.updateRecordInTheDB(keyValuePair), form.toString());
+                    JSONArray getPUT = sendRequestOnRestServer("PUT",output);
+
+                    // xmlParser.writeXML(RestServerHandler.updateRecordInTheDB(keyValuePair), form.toString());
+                    xmlParser.writeXML(getPUT, form.toString());
 
                     if (Files.exists(form) && !Files.isDirectory(form)) {
                         var extension = this.getFileExtension(form);
@@ -153,7 +169,10 @@ public class HtmlServerHandler extends Thread {
                     }
                     Files.copy(formTemplate, form, StandardCopyOption.REPLACE_EXISTING);
 
-                    xmlParser.writeXML(RestServer.deleteRecordInTheDB(keyValuePair), form.toString());
+                    JSONArray getDELETE = sendRequestOnRestServer("DELETE",output);
+
+                    // xmlParser.writeXML(RestServerHandler.deleteRecordInTheDB(keyValuePair), form.toString());
+                    xmlParser.writeXML(getDELETE, form.toString());
 
                     if (Files.exists(form) && !Files.isDirectory(form)) {
                         var extension = this.getFileExtension(form);
@@ -171,7 +190,7 @@ public class HtmlServerHandler extends Thread {
                 }
             }
 
-        } catch(IOException e) {
+        } catch(IOException | ParseException e) {
             e.printStackTrace();
         }
 
@@ -198,7 +217,7 @@ public class HtmlServerHandler extends Thread {
         while(br.ready()){
             payload.append((char) br.read());
         }
-        // System.out.println("Payload data is: "+payload.toString());
+
         requestPayload = payload.toString();
         System.out.println("method = " + method);
         if (method.equals("POST")) {
@@ -268,6 +287,69 @@ public class HtmlServerHandler extends Thread {
             i++;
         }
         return HalvesOfParamenter;
+    }
+
+     private JSONArray sendRequestOnRestServer(String method, OutputStream output) throws IOException, ParseException {
+    //private void sendRequestOnRestServer(String method, OutputStream output) throws IOException, ParseException {
+
+        Socket socket = new Socket(InetAddress.getByName("localhost"), 8080);
+
+        var outputStream = socket.getOutputStream();
+        PrintWriter pw = new PrintWriter(outputStream);
+        method = method.toUpperCase();
+        pw.println( method + " / HTTP/1.1");
+        pw.println("Host: localhost");
+        pw.println();
+        pw.println(requestPayload);
+        pw.flush();
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        String tmp;
+        StringBuffer response = new StringBuffer();
+        System.out.println("ХАй");
+        while ((tmp = br.readLine()) != null) {
+            // System.out.println("ЭТО === " + tmp);
+            response.append(tmp);
+        }
+        br.close();
+
+        System.out.println("response = " + response);
+
+        String newResponse = response.toString();
+        newResponse = newResponse.substring(1,newResponse.length()-1);
+        System.out.println("newResponse:  ");
+        System.out.println(newResponse);
+        System.out.println(newResponse.length());
+
+        String[] newResponseArray = newResponse.split("]");
+
+        JSONArray json = new JSONArray();
+        JSONArray list = new JSONArray();
+        for(int i = 0; i < newResponseArray.length; i++) {
+            System.out.println("до нарезки: " + newResponseArray[i]);
+            if(i == 0 ) {
+                newResponseArray[i] = newResponseArray[i].substring(1);
+            } else{
+                newResponseArray[i] = newResponseArray[i].substring(2);
+            }
+
+
+            //newResponseArray[i] = newResponseArray[i].replaceAll("\"", "");
+            System.out.println("newResponse = " + newResponseArray[i]);
+            System.out.println("newResponse.Size = " + newResponseArray[i].length());
+            if(newResponseArray[i].length() == 0){
+                continue;
+            }
+
+            // list.add(newResponseArray[i]);
+            json.add(newResponseArray[i]);
+
+        }
+        // json.add(list);
+        // json.add(newResponse);
+        System.out.println("Отправляем такой JSONARRAY: ");
+        System.out.println(json);
+        return json;
     }
 
 }
