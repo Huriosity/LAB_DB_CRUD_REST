@@ -18,7 +18,6 @@ public class xmlParser {
     //DOM
     public static void writeXML(JSONArray jsonArrayData, String filePath) {
         try {
-            System.out.println("ПОЛУЧИЛИ ТАКОЙ JSARRAY = " + jsonArrayData.toString());
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setValidating(false);
             DocumentBuilder builder = factory.newDocumentBuilder();
