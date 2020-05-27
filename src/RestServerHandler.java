@@ -23,32 +23,24 @@ public class RestServerHandler extends Thread {
             parseRequest(input);
             switch (method){
                 case "GET":{
-                    System.out.println("WE TAKE GET METHOD");
                     JSONArray result = getAllInfoFromDB();
                     output.write(result.toString().getBytes());
                     break;
                 }
                 case "POST":{
-                    System.out.println("WE TAKE POST METHOD");
                     ArrayList<ArrayList<String>> keyValuePair = parseRequestPayload();
                     for(int i = 0; i < keyValuePair.get(0).size(); i++){
                         System.out.println("fist = " + keyValuePair.get(0).get(i));
                         System.out.println("second = " + keyValuePair.get(1).get(i));
-                        //keyValuePair.get(1).get(i) = keyValuePair.get(1).get(i).replaceAll("\r\n", "");
-                        System.out.println(keyValuePair.get(1).get(i) instanceof String);
                     }
                     createNewRecordInTheDB(keyValuePair);
 
                     JSONArray result = getAllInfoFromDB();
-
-                    System.out.println("Result POST : " );
-                    System.out.println(result);
                     output.write(result.toString().getBytes());
 
                     break;
                 }
                 case "PUT":{
-                    System.out.println("WE TAKE PUT METHOD");
                     ArrayList<ArrayList<String>> keyValuePair = parseRequestPayload();
                     for(int i = 0; i < keyValuePair.get(0).size(); i++){
                         System.out.println("fist = " + keyValuePair.get(0).get(i));
@@ -57,15 +49,11 @@ public class RestServerHandler extends Thread {
                     updateRecordInTheDB(keyValuePair);
 
                     JSONArray result = getAllInfoFromDB();
-                    // JSONArray result = getAllInfoFromDB();
-                    System.out.println("Result: " );
-                    System.out.println(result);
                     output.write(result.toString().getBytes());
-                    // output.write(getAllInfoFromDB().toString().getBytes());
+
                     break;
                 }
                 case "DELETE":{
-                    System.out.println("WE TAKE DELETE METHOD");
                     ArrayList<ArrayList<String>> keyValuePair = parseRequestPayload();
                     for(int i = 0; i < keyValuePair.get(0).size(); i++){
                         System.out.println("fist = " + keyValuePair.get(0).get(i));
@@ -108,11 +96,6 @@ public class RestServerHandler extends Thread {
         }
 
         requestPayload = payload.toString();
-        //System.out.println("method = " + method);
-        // System.out.println("requestPayload = " + requestPayload);
-
-        //requestPayload = br.readLine();
-        //System.out.println("requestPayload = " + requestPayload);
     }
 
 
@@ -153,9 +136,7 @@ public class RestServerHandler extends Thread {
 
     private static JSONArray configurateJsonArray(DatabaseResponse databaseResponse){
         JSONArray result = new JSONArray();
-
         JSONArray list = new JSONArray();
-        System.out.println("NNENEN");
 
         for (int i = 0; i < databaseResponse.arr_col_names.length; i ++){
            list.add(databaseResponse.arr_col_names[i]);
@@ -165,7 +146,6 @@ public class RestServerHandler extends Thread {
         for (int row = 0; row < databaseResponse.fullDataFromSet[0].length; row++) {
             JSONArray list2 = new JSONArray();
             for(int col = 0;col < databaseResponse.fullDataFromSet.length; col++){
-                System.out.println("Добавляем вот это" +databaseResponse.fullDataFromSet[col][row] );
                 list2.add(databaseResponse.fullDataFromSet[col][row].replaceAll("\r\n",""));
             }
             result.add(list2);
