@@ -278,6 +278,11 @@ public class HtmlServerHandler extends Thread {
         String tmp;
         StringBuffer response = new StringBuffer();
 
+         String headerLine = null;
+         while((headerLine = br.readLine()).length() != 0){
+             System.out.println(headerLine);
+         }
+
         while ((tmp = br.readLine()) != null) {
             response.append(tmp);
         }
