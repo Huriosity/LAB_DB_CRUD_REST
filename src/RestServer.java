@@ -4,11 +4,9 @@ import java.net.ServerSocket;
 public class RestServer {
 
     private int port;
-    private String directory;
 
-    public RestServer(int port, String directory) {
+    public RestServer(int port) {
         this.port = port;
-        this.directory = directory;
     }
 
     void start() {
@@ -25,7 +23,7 @@ public class RestServer {
 
     public static void main(String[] args) {
         ConfigLoader.loadConfigENV("src\\resources\\config.properties");
-        new RestServer(8080, System.getenv().get("directory")).start();
+        new RestServer(8080).start();
 
     }
 }

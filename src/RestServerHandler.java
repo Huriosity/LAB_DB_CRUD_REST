@@ -1,10 +1,9 @@
 import org.json.simple.JSONArray;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.Socket;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class RestServerHandler extends Thread {
@@ -13,6 +12,8 @@ public class RestServerHandler extends Thread {
     private String method;
 
     private String requestPayload;
+
+    private DateTimeFormatter DTF = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 
     RestServerHandler(Socket socket) {
         this.socket = socket;
@@ -23,8 +24,11 @@ public class RestServerHandler extends Thread {
             parseRequest(input);
             switch (method){
                 case "GET":{
-                    JSONArray result = getAllInfoFromDB();
-                    output.write(result.toString().getBytes());
+                    var type = "application/json";
+                    var fileBytes =  getAllInfoFromDB().toString().getBytes("utf-8");
+                    this.sendHeader(output, 200, "OK", type, fileBytes.length);
+
+                    output.write(fileBytes);
                     break;
                 }
                 case "POST":{
@@ -35,8 +39,11 @@ public class RestServerHandler extends Thread {
                     }
                     createNewRecordInTheDB(keyValuePair);
 
-                    JSONArray result = getAllInfoFromDB();
-                    output.write(result.toString().getBytes());
+                    var type = "application/json";
+                    var fileBytes =  getAllInfoFromDB().toString().getBytes("utf-8");
+                    this.sendHeader(output, 200, "OK", type, fileBytes.length);
+
+                    output.write(fileBytes);
 
                     break;
                 }
@@ -48,8 +55,11 @@ public class RestServerHandler extends Thread {
                     }
                     updateRecordInTheDB(keyValuePair);
 
-                    JSONArray result = getAllInfoFromDB();
-                    output.write(result.toString().getBytes());
+                    var type = "application/json";
+                    var fileBytes =  getAllInfoFromDB().toString().getBytes("utf-8");
+                    this.sendHeader(output, 200, "OK", type, fileBytes.length);
+
+                    output.write(fileBytes);
 
                     break;
                 }
@@ -60,9 +70,12 @@ public class RestServerHandler extends Thread {
                         System.out.println("second = " + keyValuePair.get(1).get(i));
                     }
                     deleteRecordInTheDB(keyValuePair);
-                    JSONArray result = getAllInfoFromDB();
 
-                    output.write(result.toString().getBytes());
+                    var type = "application/json";
+                    var fileBytes =  getAllInfoFromDB().toString().getBytes("utf-8");
+                    this.sendHeader(output, 200, "OK", type, fileBytes.length);
+
+                    output.write(fileBytes);
 
 
                     break;
@@ -75,6 +88,14 @@ public class RestServerHandler extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void sendHeader(OutputStream output, int statusCode, String statusText, String type, long lenght) {
+        var ps = new PrintStream(output);
+        ps.printf("HTTP/1.1 %s %s%n", statusCode, statusText);
+        ps.printf("Date: %s%n", DTF.format(LocalDateTime.now())); ////////////////
+        ps.printf("Content-Type: %s%n", type);
+        ps.printf("Content-Length: %s%n%n", lenght);
     }
 
     private void parseRequest(InputStream input) throws IOException {
